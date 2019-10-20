@@ -1,0 +1,10 @@
+{
+  "name": "alexa-cycling-clothier",
+  "version": "0.0.1",
+  "description": "A bicycle clothing recommendation skill for Alexa based on weather and prior data.",
+  "author": "Braxton Ehle",
+  "license": "MIT",
+  "dependencies": {
+    "serverless-python-requirements": "^5.0.0"
+  }
+}
