@@ -45,7 +45,11 @@ class CyclingClothierIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        speak_output = "Put on your pants and jacket."
+        speak_output = "Put on your pants and jacket Hazel."
+        # Get current weather for location - darksky.net?
+        # Get local JSON or Google Sheets data for default weather-based
+        # recommendations
+        # Return list of recommended clothing options
 
         return (
             handler_input.response_builder
@@ -156,11 +160,11 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 
 sb = SkillBuilder()
 
-sb.add_request_handler(CyclingClothierIntentHandler())
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
+sb.add_request_handler(CyclingClothierIntentHandler())
 sb.add_request_handler(IntentReflectorHandler()) # make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
 sb.add_exception_handler(CatchAllExceptionHandler())
 
