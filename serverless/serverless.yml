@@ -2,20 +2,34 @@ service: alexa-cycling-clothier
 
 frameworkVersion: ">=1.4.0 <2.0.0"
 
+custom:
+    stage: ${opt:stage, 'dev'}
+    stages:
+        - local
+        - dev
+        - prod
+    darksky_api_key:
+        local: env:DARKSKY_API_KEY
+        dev: sm:${self:custom.stage}/CyclingClothier/DarkSkyAPIKey
+        prod: sm:${self:custom.stage}/CyclingClothier/DarkSkyAPIKey
+    region: ${opt:region, 'us-west-2'}
+    pythonRequirements:
+        dockerizePip: true
+
 provider:
   name: aws
   runtime: python3.7
-  region: ${opt:region, 'us-west-2'}
+  stage: ${self:custom.stage}
+  region: ${self:custom.region}
 
 functions:
   cycling_clothier:
     handler: handler.lambda_handler
+    environment:
+        DARKSKY_API_KEY_KEY: ${self:custom.darksky_api_key.${self:custom.stage}}
     events:
       - alexaSkill: amzn1.ask.skill.64521cab-ca3c-4bb6-97ab-e1b7031a2146
 
 plugins:
   - serverless-python-requirements
 
-custom:
-  pythonRequirements:
-    dockerizePip: true

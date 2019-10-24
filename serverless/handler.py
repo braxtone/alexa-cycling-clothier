@@ -11,11 +11,24 @@ from ask_sdk_core.skill_builder import SkillBuilder
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
 from ask_sdk_core.dispatch_components import AbstractExceptionHandler
 from ask_sdk_core.handler_input import HandlerInput
+from ask_sdk_model.ui import AskForPermissionsConsentCard
+from ask_sdk_model.services import ServiceException
 
 from ask_sdk_model import Response
+from cyclingclothier.core import CyclingClothier
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+NOTIFY_MISSING_PERMISSIONS = ("Please enable Location permissions in "
+                              "the Amazon Alexa app.")
+NO_ADDRESS = ("It looks like you don't have an address set. "
+              "You can set your address from the companion app.")
+LOCATION_FAILURE = ("There was an error with the Device Address API. "
+                    "Please try again.")
+ERROR = "Uh Oh. Looks like something went wrong."
+
+permissions = ['read::alexa:device:all:address']
 
 
 class LaunchRequestHandler(AbstractRequestHandler):
@@ -31,9 +44,9 @@ class LaunchRequestHandler(AbstractRequestHandler):
 
         return (
             handler_input.response_builder
-                .speak(speak_output)
-                .ask(speak_output)
-                .response
+                         .speak(speak_output)
+                         .ask(speak_output)
+                         .response
         )
 
 
@@ -44,19 +57,48 @@ class CyclingClothierIntentHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("CyclingClothierIntent")(handler_input)
 
     def handle(self, handler_input):
+        req_envelope = handler_input.request_envelope
+        response_builder = handler_input.response_builder
+        service_client_fact = handler_input.service_client_factory
+
+        if not (req_envelope.context.system.user.permissions and
+                req_envelope.context.system.user.permissions.context_token):
+            response_builder.speak(NOTIFY_MISSING_PERMISSIONS)
+            response_builder.set_card(
+                    AskForPermissionsConsentCard(permissions=permissions))
+            return response_builder.response
+
+        try:
+            device_id = req_envelope.context.system.device.device_id
+            device_addr_client = service_client_fact.get_device_address_service()
+            addr = device_addr_client.get_full_address(device_id)
+
+            if addr.address_line1 is None and addr.state_or_region is None:
+                response_builder.speak(NO_ADDRESS)
+            else:
+                # Address is available
+                cc = CyclingClothier(addr)
+                # TODO: Things
+
+        except ServiceException:
+            response_builder.speak(ERROR)
+            return response_builder.response
+        except Exception as e:
+            raise e
+
         # type: (HandlerInput) -> Response
-        speak_output = "Put on your pants and jacket Hazel."
         # Get current weather for location - darksky.net?
         # Get local JSON or Google Sheets data for default weather-based
         # recommendations
         # Return list of recommended clothing options
+        speak_output = "Put on your pants and jacket Hazel."
 
         return (
-            handler_input.response_builder
-                .speak(speak_output)
-                # .ask("add a reprompt if you want to keep the session open for the user to respond")
-                .response
+                handler_input.response_builder
+                             .speak(speak_output)
+                             .response
         )
+
 
 class HelpIntentHandler(AbstractRequestHandler):
     """Handler for Help Intent."""
@@ -70,9 +112,9 @@ class HelpIntentHandler(AbstractRequestHandler):
 
         return (
             handler_input.response_builder
-                .speak(speak_output)
-                .ask(speak_output)
-                .response
+                         .speak(speak_output)
+                         .ask(speak_output)
+                         .response
         )
 
 
@@ -89,8 +131,8 @@ class CancelOrStopIntentHandler(AbstractRequestHandler):
 
         return (
             handler_input.response_builder
-                .speak(speak_output)
-                .response
+                         .speak(speak_output)
+                         .response
         )
 
 
@@ -123,11 +165,11 @@ class IntentReflectorHandler(AbstractRequestHandler):
         intent_name = ask_utils.get_intent_name(handler_input)
         speak_output = "You just triggered " + intent_name + "."
 
+        # .ask("add a reprompt if you want to keep the session open for the user to respond")
         return (
             handler_input.response_builder
-                .speak(speak_output)
-                # .ask("add a reprompt if you want to keep the session open for the user to respond")
-                .response
+                         .speak(speak_output)
+                         .response
         )
 
 
@@ -148,9 +190,9 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 
         return (
             handler_input.response_builder
-                .speak(speak_output)
-                .ask(speak_output)
-                .response
+                         .speak(speak_output)
+                         .ask(speak_output)
+                         .response
         )
 
 # The SkillBuilder object acts as the entry point for your skill, routing all request and response
@@ -165,7 +207,8 @@ sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
 sb.add_request_handler(CyclingClothierIntentHandler())
-sb.add_request_handler(IntentReflectorHandler()) # make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
+# make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
+sb.add_request_handler(IntentReflectorHandler())
 sb.add_exception_handler(CatchAllExceptionHandler())
 
 lambda_handler = sb.lambda_handler()
