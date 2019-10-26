@@ -21,14 +21,22 @@ provider:
   runtime: python3.7
   stage: ${self:custom.stage}
   region: ${self:custom.region}
+  memorySize: 256
 
 functions:
-  cycling_clothier:
+  CyclingClothier:
     handler: handler.lambda_handler
+    name: CyclingClothier-${self:provider.stage}
     environment:
         DARKSKY_API_KEY_KEY: ${self:custom.darksky_api_key.${self:custom.stage}}
     events:
       - alexaSkill: amzn1.ask.skill.64521cab-ca3c-4bb6-97ab-e1b7031a2146
+
+resources:
+    Outputs:
+        CyclingClothierLambdaFunctionQualifiedArn:
+            Export:
+                Name: CyclingClothierQualifiedArn
 
 plugins:
   - serverless-python-requirements

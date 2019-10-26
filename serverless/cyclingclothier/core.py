@@ -11,7 +11,7 @@ class CyclingClothier:
         darksky_api_key = self.__get_darksky_api_key()
         self.ds = DarkSky(darksky_api_key)
 
-        self.defaults = json.loads(
+        self.defaults = json.load(
                             open(self.DEFAULT_RECOMMENDATIONS_FILE,
                                  'r'))
 
@@ -22,6 +22,9 @@ class CyclingClothier:
         # TODO: Implement retrieving API key from SecretsManager
         if ds_key_key_locator == 'env:':
             # Get DarkSky API key from environment variable for local testing
+            return ds_key_key.split(':')[1]
+        elif ds_key_key_locator == 'sm':
+            # TODO: Get key from Secrets Manager
             return ds_key_key.split(':')[1]
         else:
             raise AttributeError(
