@@ -29,6 +29,7 @@ functions:
     name: CyclingClothier-${self:provider.stage}
     environment:
         DARKSKY_API_KEY_KEY: ${self:custom.darksky_api_key.${self:custom.stage}}
+        FUNCTION_NAME: ${self:functions.CyclingClothier.name}
     events:
       - alexaSkill: amzn1.ask.skill.64521cab-ca3c-4bb6-97ab-e1b7031a2146
 

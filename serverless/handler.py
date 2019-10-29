@@ -4,20 +4,20 @@
 # Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
 # session persistence, api calls, and more.
 # This sample is built using the handler classes approach in skill builder.
-import logging
-import ask_sdk_core.utils as ask_utils
 
-
+# from geopy.geocoders import Nominatim
+from ask_sdk.standard import StandardSkillBuilder
+from ask_sdk_core.api_client import DefaultApiClient
 from ask_sdk_core.dispatch_components import AbstractExceptionHandler
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
 from ask_sdk_core.handler_input import HandlerInput
-from ask_sdk_core.skill_builder import SkillBuilder
+from ask_sdk_core.skill_builder import CustomSkillBuilder
 from ask_sdk_model import Response
 from ask_sdk_model.services import ServiceException
 from ask_sdk_model.ui import AskForPermissionsConsentCard
-from ask_sdk.standard import StandardSkillBuilder
-from ask_sdk_core.api_client import DefaultApiClient
+import ask_sdk_core.utils as ask_utils
 
+import logging
 from cyclingclothier.core import CyclingClothier
 
 logger = logging.getLogger(__name__)
@@ -29,6 +29,7 @@ NO_ADDRESS = ("It looks like you don't have an address set. "
               "You can set your address from the companion app.")
 LOCATION_FAILURE = ("There was an error with the Device Address API. "
                     "Please try again.")
+ADDRESS_AVAILABLE = "Here is your full address: {}, {}, {}"
 ERROR = "Uh Oh. Looks like something went wrong."
 
 permissions = ['read::alexa:device:all:address']
@@ -43,7 +44,9 @@ class LaunchRequestHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        speak_output = "Welcome to Cycling Clothier. I can recommend biking gear to wear based on the weather in your area."
+        speak_output = ("Welcome to Cycling Clothier."
+                        "I can recommend biking gear to wear"
+                        "based on the weather in your area.")
 
         return (
             handler_input.response_builder
@@ -64,7 +67,6 @@ class RecommendGearIntentHandler(AbstractRequestHandler):
         response_builder = handler_input.response_builder
         service_client_fact = handler_input.service_client_factory
 
-        logger.debug(req_envelope)
         if not (hasattr(req_envelope.context.system.user, 'permissions') and
                 hasattr(req_envelope.context.system.user.permissions, 'consent_token')):
             response_builder.speak(NOTIFY_MISSING_PERMISSIONS)
@@ -79,24 +81,27 @@ class RecommendGearIntentHandler(AbstractRequestHandler):
 
             if addr.address_line1 is None and addr.state_or_region is None:
                 response_builder.speak(NO_ADDRESS)
-            else:
-                # Address is available
-                cc = CyclingClothier()
-                # cc.recommend_gear(addr)
-                # TODO: Things
 
-        except ServiceException:
+        except ServiceException as e:
+            logger.error(e)
             response_builder.speak(ERROR)
             return response_builder.response
         except Exception as e:
             raise e
 
+        # Address is available
+        cc = CyclingClothier(addr, logger)
+        speak_output = cc.recommend_gear(addr)
+        # TODO: Things
         # type: (HandlerInput) -> Response
         # Get current weather for location - darksky.net?
         # Get local JSON or Google Sheets data for default weather-based
         # recommendations
         # Return list of recommended clothing options
-        speak_output = "Put on your pants and jacket Hazel."
+        # speak_output = f"Put on your pants and jacket Hazel."
+        # speak_output = ADDRESS_AVAILABLE.format(
+        #                             addr.address_line1, addr.state_or_region,
+        #                             addr.postal_code)
 
         return (
                 handler_input.response_builder
@@ -205,6 +210,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 # defined are included below. The order matters - they're processed top to bottom.
 
 
+# sb = CustomSkillBuilder(api_client=DefaultApiClient)
 sb = StandardSkillBuilder()
 
 sb.add_request_handler(LaunchRequestHandler())
@@ -217,4 +223,3 @@ sb.add_request_handler(IntentReflectorHandler())
 sb.add_exception_handler(CatchAllExceptionHandler())
 
 lambda_handler = sb.lambda_handler()
-
