@@ -7,11 +7,11 @@
 
 # from geopy.geocoders import Nominatim
 from ask_sdk.standard import StandardSkillBuilder
-from ask_sdk_core.api_client import DefaultApiClient
+# from ask_sdk_core.api_client import DefaultApiClient
 from ask_sdk_core.dispatch_components import AbstractExceptionHandler
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
 from ask_sdk_core.handler_input import HandlerInput
-from ask_sdk_core.skill_builder import CustomSkillBuilder
+# from ask_sdk_core.skill_builder import CustomSkillBuilder
 from ask_sdk_model import Response
 from ask_sdk_model.services import ServiceException
 from ask_sdk_model.ui import AskForPermissionsConsentCard
@@ -92,16 +92,6 @@ class RecommendGearIntentHandler(AbstractRequestHandler):
         # Address is available
         cc = CyclingClothier(addr, logger)
         speak_output = cc.recommend_gear(addr)
-        # TODO: Things
-        # type: (HandlerInput) -> Response
-        # Get current weather for location - darksky.net?
-        # Get local JSON or Google Sheets data for default weather-based
-        # recommendations
-        # Return list of recommended clothing options
-        # speak_output = f"Put on your pants and jacket Hazel."
-        # speak_output = ADDRESS_AVAILABLE.format(
-        #                             addr.address_line1, addr.state_or_region,
-        #                             addr.postal_code)
 
         return (
                 handler_input.response_builder
@@ -175,7 +165,6 @@ class IntentReflectorHandler(AbstractRequestHandler):
         intent_name = ask_utils.get_intent_name(handler_input)
         speak_output = "You just triggered " + intent_name + "."
 
-        # .ask("add a reprompt if you want to keep the session open for the user to respond")
         return (
             handler_input.response_builder
                          .speak(speak_output)
@@ -211,6 +200,9 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 
 
 # sb = CustomSkillBuilder(api_client=DefaultApiClient)
+# TODO: Move to using CustomSkillBuilder for this to avoid having to bring in
+# the whole aws-sdk
+# https://developer.amazon.com/docs/alexa-skills-kit-sdk-for-python/construct-skill-instance.html#customskillbuilder-class
 sb = StandardSkillBuilder()
 
 sb.add_request_handler(LaunchRequestHandler())
