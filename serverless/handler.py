@@ -89,7 +89,7 @@ class RecommendGearIntentHandler(AbstractRequestHandler):
         except Exception as e:
             raise e
 
-        # Address is available
+        # Address is available, pass to main CyclingClothier for the real party
         cc = CyclingClothier(addr, logger)
         speak_output = cc.recommend_gear(addr)
 
