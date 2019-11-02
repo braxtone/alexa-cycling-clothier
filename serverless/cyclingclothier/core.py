@@ -5,16 +5,23 @@ from darksky.types import languages, units, weather
 from geopy.geocoders import Nominatim
 from geopy.location import Location
 from ask_sdk_model.services.device_address.address import Address
+
 import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class CyclingClothier:
     DEFAULT_RECOMMENDATIONS_FILE = './defaults.json'
 
     def __init__(self, addr: Address,
-                 logger):
+                 logger=logger):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logger.level)
+        if type(Address) is Address:
+            self.addr = addr
+        else:
+            raise TypeError("addr parameter must be of type Address")
 
         self.darksky_api_key = None
 
