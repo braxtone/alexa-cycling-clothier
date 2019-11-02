@@ -80,7 +80,7 @@ class CyclingClothier:
         try:
             location = geolocator.geocode(lookup_address)
         except Exception as e:
-            self.logger.error("Unable to retrieve coordinates for address: {e}")
+            self.logger.error(f"Unable to retrieve coordinates for address: {e}")
 
         return location
 
@@ -99,6 +99,9 @@ class CyclingClothier:
         self.logger.info("Getting gear recommendations based on address")
         location = self.__get_location(addr)
         current = self.__get_current_forecast(location)
+        # Get local JSON or Google Sheets data for default weather-based
+        # recommendations
+        # Return list of recommended clothing options
 
         return (f"It's {current.temperature} degrees with clear skies,"
                 "so you should wear a dri-fit base layer, short sleeve jersey,"
