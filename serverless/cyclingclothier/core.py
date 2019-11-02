@@ -18,10 +18,10 @@ class CyclingClothier:
                  logger=logger):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logger.level)
-        if type(Address) is Address:
+        if type(addr) is Address:
             self.addr = addr
         else:
-            raise TypeError("addr parameter must be of type Address")
+            raise TypeError(f"addr parameter must be of type Address, got {type(addr)}")
 
         self.darksky_api_key = None
 

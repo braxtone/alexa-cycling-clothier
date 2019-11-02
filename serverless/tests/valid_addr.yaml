@@ -1,0 +1,10 @@
+!!python/object:ask_sdk_model.services.device_address.address.Address
+_Address__discriminator_value: null
+address_line1: 400 Broad St
+address_line2: null
+address_line3: null
+city: SEATTLE
+country_code: US
+district_or_county: null
+postal_code: 98109-4607
+state_or_region: WA
