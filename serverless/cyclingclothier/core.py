@@ -91,7 +91,7 @@ class CyclingClothier:
 
         return location
 
-    def __get_current_forecast(self, location: Location):
+    def _get_current_forecast(self, location: Location):
         self.logger.info("Getting forecast from location")
         forecast = self.ds.get_forecast(
                 location.latitude, location.longitude,
@@ -102,11 +102,12 @@ class CyclingClothier:
 
         return forecast.currently
 
-    def recommend_gear(self, addr: Address):
+    def recommend_gear(self, addr: Address = None):
         self.logger.info("Getting gear recommendations based on address")
+        addr = self.addr if addr is None else addr
         addr_str = self.__get_addr_string(addr)
         location = self.__get_location(addr_str)
-        current = self.__get_current_forecast(location)
+        current = self._get_current_forecast(location)
         # Get local JSON or Google Sheets data for default weather-based
         # recommendations
         # Return list of recommended clothing options

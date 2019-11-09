@@ -1,0 +1,22 @@
+!!python/object:darksky.forecast.CurrentlyForecast
+apparent_temperature: 45.15
+cloud_cover: 0
+dew_point: 45.56
+humidity: 0.91
+icon: clear-night
+nearest_storm_bearing: 182
+nearest_storm_distance: 4
+ozone: 248.7
+precip_intensity: 0
+precip_intensity_error: null
+precip_probability: 0
+precip_type: null
+pressure: 1022.2
+summary: Clear
+temperature: 42.0
+time: 2019-11-08 21:53:35-08:00
+uv_index: 0
+visibility: 3.583
+wind_bearing: 158
+wind_gust: 6.22
+wind_speed: 6.22
