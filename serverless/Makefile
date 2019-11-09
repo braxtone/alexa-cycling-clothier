@@ -29,7 +29,7 @@ local: install_dev
 		--function CyclingClothier \
 		--path tests/input.json \
 		--stage local \
-		--env DARKSKY_API_KEY=$DARKSKY_API_KEY
+		--env DARKSKY_API_KEY=$(DARKSKY_API_KEY)
 
 deploy_dev: test
 	$(VENV_ACTIVATE); sls deploy \
