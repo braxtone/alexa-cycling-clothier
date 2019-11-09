@@ -15,7 +15,8 @@ class CyclingClothier:
     DEFAULT_RECOMMENDATIONS_FILE = './defaults.json'
 
     def __init__(self, addr: Address,
-                 logger=logger):
+                 log_level=logging.INFO,
+                 defaults: str = DEFAULT_RECOMMENDATIONS_FILE):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logger.level)
         if type(addr) is Address:
@@ -71,21 +72,20 @@ class CyclingClothier:
                 'state_or_region']
 
         addr = addr.to_dict()
-        address = ""
+        address_str = ""
         for key in keys:
             if key in addr and addr[key] is not None:
-                address += f"{addr[key]} "
+                address_str += f"{addr[key]} "
 
-        return address
+        return address_str
 
-    def __get_location(self, addr: Address):
+    def __get_location(self, addr: str):
         self.logger.info("Getting geo coordinates for address")
         geolocator = Nominatim(user_agent=os.environ['FUNCTION_NAME'])
-        lookup_address = self.__get_addr_string(addr)
-        self.logger.debug(f"Looking up lat long for {lookup_address}")
+        self.logger.debug(f"Looking up lat long for {addr}")
 
         try:
-            location = geolocator.geocode(lookup_address)
+            location = geolocator.geocode(addr)
         except Exception as e:
             self.logger.error(f"Unable to retrieve coordinates for address: {e}")
 
@@ -104,7 +104,8 @@ class CyclingClothier:
 
     def recommend_gear(self, addr: Address):
         self.logger.info("Getting gear recommendations based on address")
-        location = self.__get_location(addr)
+        addr_str = self.__get_addr_string(addr)
+        location = self.__get_location(addr_str)
         current = self.__get_current_forecast(location)
         # Get local JSON or Google Sheets data for default weather-based
         # recommendations
