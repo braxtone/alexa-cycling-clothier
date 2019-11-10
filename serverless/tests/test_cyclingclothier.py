@@ -22,7 +22,7 @@ def get_valid_addr_obj():
     import yaml
     from ask_sdk_model.services.device_address.address import Address
 
-    addr = yaml.load(open('./tests/valid_addr.yaml'), Loader=yaml.FullLoader)
+    addr = yaml.load(open(VALID_ADDR_OBJ_FILENAME), Loader=yaml.FullLoader)
     return addr
 
 
@@ -61,11 +61,12 @@ def test_core_constructor(get_valid_addr_obj):
 
 @pytest.mark.usefixtures('set_ds_key', 'set_ds_key_key',
                          'set_function_name')
-def test_get_gear_recommendation(get_valid_addr_obj,
+def test_default_gear_recommendation(get_valid_addr_obj,
                                  mock_current_forecast):
+    # TODO: Mock calls for address to location translation
     cc = CyclingClothier(get_valid_addr_obj)
 
-    expected_response = ("It's 42.0 degrees with clear skies,"
+    expected_response = ("It's 42.0 degrees and Clear,"
                          "so you should wear a dri-fit base layer, short sleeve jersey,"
                          "and long pants.")
     assert cc.recommend_gear() == expected_response
