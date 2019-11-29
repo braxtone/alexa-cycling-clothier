@@ -1,11 +1,10 @@
 import os
-import json
 from darksky.api import DarkSky
 from darksky.types import languages, units, weather
 from geopy.geocoders import Nominatim
 from geopy.location import Location
 from ask_sdk_model.services.device_address.address import Address
-from recommendation import DefaultRecommendation
+from .recommendation import DefaultRecommendation
 
 import logging
 logger = logging.getLogger(__name__)
