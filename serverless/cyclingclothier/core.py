@@ -5,6 +5,7 @@ from darksky.types import languages, units, weather
 from geopy.geocoders import Nominatim
 from geopy.location import Location
 from ask_sdk_model.services.device_address.address import Address
+from recommendation import DefaultRecommendation
 
 import logging
 logger = logging.getLogger(__name__)
@@ -12,11 +13,9 @@ logger.setLevel(logging.DEBUG)
 
 
 class CyclingClothier:
-    DEFAULT_RECOMMENDATIONS_FILE = './defaults.json'
-
     def __init__(self, addr: Address,
                  log_level=logging.INFO,
-                 defaults: str = DEFAULT_RECOMMENDATIONS_FILE):
+                 defaults: DefaultRecommendation = None):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logger.level)
         if type(addr) is Address:
@@ -27,9 +26,6 @@ class CyclingClothier:
         self.darksky_api_key = None
 
         self.ds = DarkSky(self.__get_darksky_api_key())
-        self.defaults = json.load(
-                            open(self.DEFAULT_RECOMMENDATIONS_FILE,
-                                 'r'))
 
     def __get_darksky_api_key(self):
         self.logger.info("Retrieving DarkSky API key")
@@ -108,8 +104,18 @@ class CyclingClothier:
         addr_str = self.__get_addr_string(addr)
         location = self.__get_location(addr_str)
         current = self._get_current_forecast(location)
-        # Get local JSON or Google Sheets data for default weather-based
-        # recommendations
+        # Get local JSON-based recommendations
+        # Get recommendation object
+        # this is the all-up method that calls the other discrete
+        # recommendation methods
+        # pull in a recommendations class
+        # set mode to 'default' to get default recommendations
+        # set mode to 'prior data' to use prior historical data
+        # fall back to default data if historical isn't sufficient
+        # recommendation class is based on an interface so the calls are
+        # consistent
+        #
+        # TODO Google Sheets data for default weather-based recommendations
         # Return list of recommended clothing options
 
         return (f"It's {current.temperature} degrees and {current.summary}, "
