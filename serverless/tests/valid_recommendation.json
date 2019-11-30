@@ -1,0 +1,105 @@
+{
+    "5": {
+        "min_temp": 25,
+        "max_temp": 29,
+        "recommendations": {
+            "override": "Brrrr, ride the bus"
+        }
+    },
+    "6": {
+        "min_temp": 30,
+        "max_temp": 34,
+        "recommendations": {
+            "boot_covers": true,
+            "pants": "tights",
+            "undershirt": "wool",
+            "jersey": "longsleeve",
+            "gloves": "full-finger",
+            "facemask": true
+        }
+    },
+    "7": {
+        "min_temp": 35,
+        "max_temp": 39,
+        "recommendations": {
+            "boot_covers": null,
+            "pants": "tights",
+            "undershirt": "wool",
+            "jersey": "longsleeve",
+            "gloves": "full-finger",
+            "facemask": true
+        }
+    },
+    "8": {
+        "min_temp": 40,
+        "max_temp": 44,
+        "recommendations": {
+            "boot_covers": null,
+            "pants": "tights",
+            "undershirt": "dri-fit",
+            "jersey": "longsleeve",
+            "gloves": "full-finger",
+            "facemask": null
+        }
+    },
+    "9": {
+        "min_temp": 45,
+        "max_temp": 49,
+        "recommendations": {
+            "boot_covers": null,
+            "pants": "tights",
+            "undershirt": "wool",
+            "jersey": "shortsleeve",
+            "gloves": "full-finger",
+            "facemask": null
+        }
+    },
+    "10": {
+        "min_temp": 50,
+        "max_temp": 54,
+        "recommendations": {
+            "boot_covers": null,
+            "pants": "tights",
+            "undershirt": "dri-fit",
+            "jersey": "shortsleeve",
+            "gloves": "fingerless",
+            "facemask": null
+        }
+    },
+    "11": {
+        "min_temp": 55,
+        "max_temp": 59,
+        "recommendations": {
+            "boot_covers": null,
+            "pants": "tights",
+            "undershirt": "dri-fit",
+            "jersey": "shortsleeve",
+            "gloves": "fingerless",
+            "facemask": null
+        }
+    },
+    "12": {
+        "min_temp": 60,
+        "max_temp": 64,
+        "recommendations": {
+            "boot_covers": null,
+            "pants": "shorts",
+            "undershirt": "none",
+            "jersey": "shortsleeve",
+            "gloves": "fingerless",
+            "facemask": null
+        }
+    },
+    "13": {
+        "min_temp": 65,
+        "max_temp": 69,
+        "recommendations": {
+            "boot_covers": null,
+            "pants": "shorts",
+            "undershirt": "none",
+            "jersey": "shortsleeve",
+            "gloves": "fingerless",
+            "facemask": null
+        }
+    }
+}

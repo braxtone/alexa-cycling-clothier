@@ -118,5 +118,5 @@ class CyclingClothier:
         # Return list of recommended clothing options
 
         return (f"It's {current.temperature} degrees and {current.summary}, "
-                "so you should wear a dri-fit base layer, short sleeve jersey, "
-                "and long pants.")
+                "so you should wear biking tights, a dri-fit base layer, "
+                "longsleeve jersey, full-finger gloves.")
