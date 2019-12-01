@@ -3,7 +3,13 @@
         "min_temp": 25,
         "max_temp": 29,
         "recommendations": {
-            "override": "Brrrr, ride the bus"
+            "_override": "Brrrr, ride the bus",
+            "boot_covers": null,
+            "pants": null,
+            "undershirt": null,
+            "jersey": null,
+            "gloves": null,
+            "facemask": null 
         }
     },
     "6": {

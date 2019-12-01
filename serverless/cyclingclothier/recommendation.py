@@ -1,52 +1,56 @@
 import abc
 import json
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class Recommendation(abc.ABC):
     __metaclass__ = abc.ABCMeta
+    TEMP_INCREMENTS = 5
+    REC_OVERRIDE = "_override"
+    REC_KEY = "recommendations"
 
     @abc.abstractmethod
-    def __init__(self, defaults: str,
-                 temp: float = None):
+    def __init__(self, defaults, temperature):
         """Create recommendation object"""
-        self.temp = temp
-
-    @property
-    @abc.abstractmethod
-    def undershirt(self, temperature: float):
-        """Get undershirt recommendation"""
 
     @abc.abstractmethod
-    def pants(self, temperature: float):
-        """Get pants recommendation"""
-
-    @abc.abstractmethod
-    def jersey(self, temperature: float):
-        """Get jersey recommendation"""
-
-    @abc.abstractmethod
-    def gloves(self, temperature: float):
-        """Get gloves recommendation"""
-
-    @abc.abstractmethod
-    def facemask(self, temperature: float):
-        """Get facemask recommendation"""
-
-    @abc.abstractmethod
-    def boot_covers(self, temperature: float):
-        """Get boot cover recommendation"""
+    def recommend(self, gear, temperature):
+        """Get gear recommendation"""
 
 
 class DefaultRecommendation(Recommendation):
     DEFAULT_RECOMMENDATIONS_FILE = './defaults.json'
 
     def __init__(self, defaults: str = DEFAULT_RECOMMENDATIONS_FILE,
-                 temp: float = None):
+                 temperature: float = None):
         self.defaults = json.load(open(defaults, 'r'))
+        self.temp = temperature
 
-        self.temp = temp if temp else None
+    def recommend(self, gear: str, temperature: float = None):
+        if temperature is None:
+            temperature = self.temperature
 
-    def vet_temp(temp):
+        self._vet_temp(temperature)
+        floor = str(int(temperature // self.TEMP_INCREMENTS))
+        logger.debug(f"Got floor of {floor} for temp: {temperature}")
+
+        # Check if defaults are set for this temperature range
+        if floor in self.defaults:
+            gear_recs = self.defaults[floor]
+
+            # If so, see if there's an override
+            if self.REC_OVERRIDE in gear_recs[self.REC_KEY]:
+                return gear_recs[self.REC_KEY][self.REC_OVERRIDE]
+            elif gear in gear_recs[self.REC_KEY]:
+                return gear_recs[self.REC_KEY][gear]
+            else:
+                raise KeyError("No default undershirt recommendation for the specified temperature")
+        else:
+            raise KeyError("No defaults specified for the specified temperature")
+
+    def _vet_temp(self, temp):
         if temp:
             if type(temp) is float:
                 return temp
@@ -54,21 +58,3 @@ class DefaultRecommendation(Recommendation):
                 raise TypeError("temp parameter must be a float")
         else:
             raise TypeError("temp argument must not be None")
-
-    def undershirt(self, temperature: float):
-        self.vet_temp(temperature)
-
-    def pants(self, temperature: float):
-        pass
-
-    def jersey(self, temperature: float):
-        pass
-
-    def gloves(self, temperature: float):
-        pass
-
-    def facemask(self, temperature: float):
-        pass
-
-    def boot_covers(self, temperature: float):
-        pass
