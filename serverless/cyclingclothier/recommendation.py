@@ -75,10 +75,10 @@ class DefaultRecommendation(Recommendation):
             # If so, see if there's an override
             if self.REC_OVERRIDE in gear_recs[self.REC_KEY]:
                 return GearRecommendation(gear,
-                           gear_recs[self.REC_KEY][self.REC_OVERRIDE])
+                                          gear_recs[self.REC_KEY][self.REC_OVERRIDE])
             elif gear in gear_recs[self.REC_KEY]:
                 return GearRecommendation(gear,
-                           gear_recs[self.REC_KEY][gear])
+                                          gear_recs[self.REC_KEY][gear])
             else:
                 raise UnknownGearTypeException("Unknown gear type: '{gear}'")
         else:

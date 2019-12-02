@@ -27,3 +27,5 @@ def test_individual_recommendations(get_dr_object):
     assert get_dr_object.recommend('jersey', temperature).recommendation == 'longsleeve'
     assert get_dr_object.recommend('gloves', temperature).recommendation == 'full-finger'
     assert get_dr_object.recommend('facemask', temperature).recommendation == None
+
+# TODO Write some tests covering the validity of the defaults.json schema
