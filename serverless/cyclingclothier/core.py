@@ -4,7 +4,7 @@ from darksky.types import languages, units, weather
 from geopy.geocoders import Nominatim
 from geopy.location import Location
 from ask_sdk_model.services.device_address.address import Address
-from .recommendation import DefaultRecommendation
+from .recommendation import Recommendation
 
 import logging
 logger = logging.getLogger(__name__)
@@ -12,19 +12,29 @@ logger.setLevel(logging.DEBUG)
 
 
 class CyclingClothier:
+    UNDERSHIRT = 'undershirt'
+    PANTS = 'pants'
+    BOOT_COVERS = 'boot_covers'
+    JERSEY = 'jersey'
+    GLOVES = 'gloves'
+    FACEMASK = 'facemask'
+
+    GEAR = [UNDERSHIRT, PANTS,
+            JERSEY, GLOVES,
+            BOOT_COVERS, FACEMASK]
+
     def __init__(self, addr: Address,
-                 log_level=logging.INFO,
-                 defaults: DefaultRecommendation = None):
+                 defaults: Recommendation,
+                 log_level=logging.INFO):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logger.level)
         if type(addr) is Address:
             self.addr = addr
         else:
             raise TypeError(f"addr parameter must be of type Address, got {type(addr)}")
-
         self.darksky_api_key = None
-
         self.ds = DarkSky(self.__get_darksky_api_key())
+        self.defaults = defaults
 
     def __get_darksky_api_key(self):
         self.logger.info("Retrieving DarkSky API key")
@@ -97,26 +107,30 @@ class CyclingClothier:
 
         return forecast.currently
 
+    def get_all_recommendations(self, temperature: float):
+        recommendations = []
+        for gear in self.GEAR:
+            recommendations.append(
+                self.defaults.recommend(gear, temperature))
+
+        return dict(zip(self.GEAR, recommendations))
+
     def recommend_gear(self, addr: Address = None):
         self.logger.info("Getting gear recommendations based on address")
         addr = self.addr if addr is None else addr
         addr_str = self.__get_addr_string(addr)
         location = self.__get_location(addr_str)
         current = self._get_current_forecast(location)
-        # Get local JSON-based recommendations
-        # Get recommendation object
         # this is the all-up method that calls the other discrete
         # recommendation methods
-        # pull in a recommendations class
-        # set mode to 'default' to get default recommendations
-        # set mode to 'prior data' to use prior historical data
-        # fall back to default data if historical isn't sufficient
-        # recommendation class is based on an interface so the calls are
-        # consistent
-        #
+        recs = self.get_all_recommendations(current.temperature)
+        # Filter out things without recommendations
+        recs = dict(filter(lambda e: e[1] is not None, recs.items()))
+
         # TODO Google Sheets data for default weather-based recommendations
         # Return list of recommended clothing options
 
-        return (f"It's {current.temperature} degrees and {current.summary}, "
-                "so you should wear biking tights, a dri-fit base layer, "
-                "longsleeve jersey, full-finger gloves.")
+        return (f"It's {current.temperature} degrees and {current.summary}. So "
+                f"you should wear {recs[self.UNDERSHIRT]}, "
+                f"{recs[self.PANTS]}, {recs[self.JERSEY]}, "
+                f"and {recs[self.GLOVES]}.")

@@ -19,6 +19,7 @@ import ask_sdk_core.utils as ask_utils
 
 import logging
 from cyclingclothier.core import CyclingClothier
+from cyclingclothier.recommendation import DefaultRecommendation
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -90,7 +91,8 @@ class RecommendGearIntentHandler(AbstractRequestHandler):
             raise e
 
         # Address is available, pass to main CyclingClothier for the real party
-        cc = CyclingClothier(addr, logger)
+        dr = DefaultRecommendation('./defaults.json')
+        cc = CyclingClothier(addr, logger, dr)
         speak_output = cc.recommend_gear(addr)
 
         return (

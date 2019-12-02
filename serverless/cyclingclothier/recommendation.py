@@ -20,6 +20,39 @@ class Recommendation(abc.ABC):
         """Get gear recommendation"""
 
 
+class UnknownGearTypeException(Exception):
+    """Thrown when an unknown/unexpected gear type is encountered"""
+    pass
+
+
+class TooColdException(Exception):
+    """Thrown when it's too cold to recommend something to bike in"""
+
+
+class TooHotException(Exception):
+    """Thrown when it's too hot to recommend something to bike in"""
+
+
+class GearRecommendation():
+    def __init__(self, gear: str, rec: str):
+        self.type = gear
+        self.recommendation = rec
+
+    def __repr__(self):
+        if self.type == 'undershirt':
+            return f"a {self.recommendation} base layer"
+        elif self.type == 'pants':
+            return f"biking {self.recommendation}"
+        elif self.type == 'jersey':
+            return f"a {self.recommendation} jersey"
+        elif self.type == 'gloves':
+            return f"a pair of {self.recommendation} gloves"
+        elif self.type == 'boot_covers':
+            return 'boot covers'
+        else:
+            raise UnknownGearTypeException(f"Unknown gear type: '{self.type}'")
+
+
 class DefaultRecommendation(Recommendation):
     DEFAULT_RECOMMENDATIONS_FILE = './defaults.json'
 
@@ -34,7 +67,6 @@ class DefaultRecommendation(Recommendation):
 
         self._vet_temp(temperature)
         floor = str(int(temperature // self.TEMP_INCREMENTS))
-        logger.debug(f"Got floor of {floor} for temp: {temperature}")
 
         # Check if defaults are set for this temperature range
         if floor in self.defaults:
@@ -42,11 +74,13 @@ class DefaultRecommendation(Recommendation):
 
             # If so, see if there's an override
             if self.REC_OVERRIDE in gear_recs[self.REC_KEY]:
-                return gear_recs[self.REC_KEY][self.REC_OVERRIDE]
+                return GearRecommendation(gear,
+                           gear_recs[self.REC_KEY][self.REC_OVERRIDE])
             elif gear in gear_recs[self.REC_KEY]:
-                return gear_recs[self.REC_KEY][gear]
+                return GearRecommendation(gear,
+                           gear_recs[self.REC_KEY][gear])
             else:
-                raise KeyError("No default undershirt recommendation for the specified temperature")
+                raise UnknownGearTypeException("Unknown gear type: '{gear}'")
         else:
             raise KeyError("No defaults specified for the specified temperature")
 

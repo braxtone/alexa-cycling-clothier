@@ -1,8 +1,8 @@
 import pytest
-from cyclingclothier.recommendation import Recommendation, DefaultRecommendation
+from cyclingclothier.recommendation import Recommendation, DefaultRecommendation, UnknownGearTypeException
 
-VALID_RECOMMENDATION_FILENAME = './tests/valid_recommendation.json'
-INVALID_RECOMMENDATION_FILENAME = './tests/invalid_recommendation.json'
+VALID_RECOMMENDATION_FILENAME = './tests/recommendation_valid.json'
+INVALID_RECOMMENDATION_FILENAME = './tests/recommendation_invalid.json'
 
 @pytest.fixture
 def get_dr_object():
@@ -19,9 +19,11 @@ def test_constructor_neg():
         
 def test_individual_recommendations(get_dr_object):
     temperature = 42.0
-    assert get_dr_object.recommend('undershirt', temperature) == 'dri-fit'
-    assert get_dr_object.recommend('boot_covers', temperature) == None
-    assert get_dr_object.recommend('pants', temperature) == 'tights'
-    assert get_dr_object.recommend('jersey', temperature) == 'longsleeve'
-    assert get_dr_object.recommend('gloves', temperature) == 'full-finger'
-    assert get_dr_object.recommend('facemask', temperature) == None
+    with pytest.raises(UnknownGearTypeException):
+        get_dr_object.recommend('wetsuit', temperature)
+    assert get_dr_object.recommend('undershirt', temperature).recommendation == 'dri-fit'
+    assert get_dr_object.recommend('boot_covers', temperature).recommendation == None
+    assert get_dr_object.recommend('pants', temperature).recommendation == 'tights'
+    assert get_dr_object.recommend('jersey', temperature).recommendation == 'longsleeve'
+    assert get_dr_object.recommend('gloves', temperature).recommendation == 'full-finger'
+    assert get_dr_object.recommend('facemask', temperature).recommendation == None
