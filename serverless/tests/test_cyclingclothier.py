@@ -63,6 +63,15 @@ class MockDarkSky:
                                      Loader=yaml.FullLoader)
         return forecast
 
+    @staticmethod
+    def get_28_forecast():
+        import yaml
+        from darksky.forecast import CurrentlyForecast
+
+        forecast = yaml.load(open(FORECAST_28_VALID_OBJ),
+                                     Loader=yaml.FullLoader)
+        return forecast
+
 @pytest.fixture
 def mock_current_forecast(monkeypatch):
 
@@ -78,6 +87,14 @@ def mock_61_degree_forecast(monkeypatch):
         return MockDarkSky().get_61_forecast()
 
     monkeypatch.setattr(CyclingClothier, "_get_current_forecast", mock_get_61_forecast)
+
+@pytest.fixture
+def mock_28_degree_forecast(monkeypatch):
+
+    def mock_get_28_forecast(*args, **kwargs):
+        return MockDarkSky().get_28_forecast()
+
+    monkeypatch.setattr(CyclingClothier, "_get_current_forecast", mock_get_28_forecast)
 
 @pytest.mark.usefixtures('set_ds_key', 'set_ds_key_key')
 def test_core_constructor_neg():
@@ -114,9 +131,19 @@ def test_default_gear_recommendation(get_valid_addr_obj,
                                  get_default_recs_obj):
     cc = CyclingClothier(get_valid_addr_obj, get_default_recs_obj)
 
-    expected_response_61 = ("It's 61.0 degrees and Clear. "
+    expected_response = ("It's 61.0 degrees and Clear. "
                             "So you should wear: biking shorts, a shortsleeve "
                             "jersey, and a pair of fingerless gloves.")
-    assert cc.recommend_gear() == expected_response_61
+    assert cc.recommend_gear() == expected_response
 
 # TODO Add test for 28 degrees (says to ride the bus)
+@pytest.mark.usefixtures('set_ds_key', 'set_ds_key_key',
+                         'set_function_name')
+def test_default_gear_recommendation(get_valid_addr_obj,
+                                 mock_28_degree_forecast,
+                                 get_default_recs_obj):
+    cc = CyclingClothier(get_valid_addr_obj, get_default_recs_obj)
+
+    expected_response = ("It's 28.0 degrees and Clear. "
+                            "Brrrr, ride the bus")
+    assert cc.recommend_gear() == expected_response

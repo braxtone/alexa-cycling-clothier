@@ -25,12 +25,8 @@ class UnknownGearTypeException(Exception):
     pass
 
 
-class TooColdException(Exception):
-    """Thrown when it's too cold to recommend something to bike in"""
-
-
-class TooHotException(Exception):
-    """Thrown when it's too hot to recommend something to bike in"""
+class RecommendationOverrideException(Exception):
+    """Thrown when the recommendations config section has an override"""
 
 
 class GearRecommendation():
@@ -76,7 +72,7 @@ class DefaultRecommendation(Recommendation):
 
             # If so, see if there's an override
             if self.REC_OVERRIDE in gear_recs[self.REC_KEY]:
-                return GearRecommendation(gear,
+                raise RecommendationOverrideException(
                                           gear_recs[self.REC_KEY][self.REC_OVERRIDE])
             elif gear in gear_recs[self.REC_KEY]:
                 # logger.debug(f"Got recommendation {gear_recs[self.REC_KEY][gear]} for {gear}")

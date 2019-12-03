@@ -4,7 +4,7 @@ from darksky.types import languages, units, weather
 from geopy.geocoders import Nominatim
 from geopy.location import Location
 from ask_sdk_model.services.device_address.address import Address
-from .recommendation import Recommendation
+from .recommendation import Recommendation, RecommendationOverrideException
 
 import logging
 logger = logging.getLogger(__name__)
@@ -126,16 +126,21 @@ class CyclingClothier:
         addr_str = self.__get_addr_string(addr)
         location = self.__get_location(addr_str)
         current = self._get_current_forecast(location)
-        recs = self.get_all_recommendations(current.temperature)
-        # Filter out things without recommendations
-        recs = dict(filter(lambda e: e[1].recommendation is not None, recs.items()))
-        # Turn the list of objects in to a list of string-ified recommendations
-        rec_vals = [str(e) for e in recs.values()]
-        # https://www.youtube.com/watch?v=P_i1xk07o4g
-        recommendations = ', '.join(rec_vals[:-1]) + ', and ' + rec_vals[-1]
+        rec_boilerplate = f"It's {current.temperature} degrees and {current.summary}. "
+        try:
+            recs = self.get_all_recommendations(current.temperature)
+            # Filter out things without recommendations
+            recs = dict(filter(lambda e: e[1].recommendation is not None, recs.items()))
+            # Turn the list of objects in to a list of string-ified recommendations
+            rec_vals = [str(e) for e in recs.values()]
+            # https://www.youtube.com/watch?v=P_i1xk07o4g
+            recommendations = 'So you should wear: '
+            recommendations += ', '.join(rec_vals[:-1]) + ', and ' + rec_vals[-1]
+        except RecommendationOverrideException as e:
+            self.logger.info("Encountered an override for temp: {current.temperature}")
+            recommendations = str(e)
 
         # TODO Google Sheets data for default weather-based recommendations
         # Return list of recommended clothing options
 
-        return (f"It's {current.temperature} degrees and {current.summary}. So "
-                f"you should wear: {recommendations}.")
+        return (rec_boilerplate + recommendations)
