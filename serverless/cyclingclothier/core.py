@@ -27,7 +27,7 @@ class CyclingClothier:
                  defaults: Recommendation,
                  log_level=logging.INFO):
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logger.level)
+        self.logger.setLevel(log_level)
         if type(addr) is Address:
             self.addr = addr
         else:

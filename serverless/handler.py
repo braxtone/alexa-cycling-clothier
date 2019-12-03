@@ -92,7 +92,7 @@ class RecommendGearIntentHandler(AbstractRequestHandler):
 
         # Address is available, pass to main CyclingClothier for the real party
         dr = DefaultRecommendation('./defaults.json')
-        cc = CyclingClothier(addr, logger, dr)
+        cc = CyclingClothier(addr, dr, logger.level)
         speak_output = cc.recommend_gear(addr)
 
         return (
