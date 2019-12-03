@@ -12,6 +12,9 @@ $(VENV_NAME)/bin/activate:
 install_dev: venv
 	${PYTHON} -m pip install --quiet -r requirements_dev.txt
 
+npm_install: install_dev
+	npm install
+
 clean:
 	source venv/bin/activate; deactivate
 	rm -rf venv
@@ -24,7 +27,7 @@ lint: install_dev
 test: lint 
 	${PYTHON} -m pytest
 
-local: install_dev
+local: npm_install 
 	$(VENV_ACTIVATE); sls invoke local \
 		--function CyclingClothier \
 		--path tests/input.json \
