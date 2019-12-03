@@ -86,7 +86,7 @@ def test_default_gear_recommendation(get_valid_addr_obj,
     cc = CyclingClothier(get_valid_addr_obj, get_default_recs_obj)
 
     expected_response = ("It's 42.0 degrees and Clear. "
-                         "So you should wear a dri-fit base layer, "
+                         "So you should wear: a dri-fit base layer, "
                          "biking tights, a longsleeve jersey, and a pair of full-finger gloves.")
     assert cc.recommend_gear() == expected_response
     # TODO Add test for 28 degrees (says to ride the bus)

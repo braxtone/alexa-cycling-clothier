@@ -108,6 +108,7 @@ class CyclingClothier:
         return forecast.currently
 
     def get_all_recommendations(self, temperature: float):
+        logger.debug(f"Getting recommendations for temp: {temperature}")
         recommendations = []
         for gear in self.GEAR:
             recommendations.append(
@@ -121,16 +122,16 @@ class CyclingClothier:
         addr_str = self.__get_addr_string(addr)
         location = self.__get_location(addr_str)
         current = self._get_current_forecast(location)
-        # this is the all-up method that calls the other discrete
-        # recommendation methods
         recs = self.get_all_recommendations(current.temperature)
         # Filter out things without recommendations
-        recs = dict(filter(lambda e: e[1] is not None, recs.items()))
+        recs = dict(filter(lambda e: e[1].recommendation is not None, recs.items()))
+        # Turn the list of objects in to a list of string-ified recommendations
+        rec_vals = [str(e) for e in recs.values()]
+        # https://www.youtube.com/watch?v=P_i1xk07o4g
+        recommendations = ', '.join(rec_vals[:-1]) + ', and ' + rec_vals[-1]
 
         # TODO Google Sheets data for default weather-based recommendations
         # Return list of recommended clothing options
 
         return (f"It's {current.temperature} degrees and {current.summary}. So "
-                f"you should wear {recs[self.UNDERSHIRT]}, "
-                f"{recs[self.PANTS]}, {recs[self.JERSEY]}, "
-                f"and {recs[self.GLOVES]}.")
+                f"you should wear: {recommendations}.")

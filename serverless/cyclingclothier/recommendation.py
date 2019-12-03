@@ -38,7 +38,7 @@ class GearRecommendation():
         self.type = gear
         self.recommendation = rec
 
-    def __repr__(self):
+    def __str__(self):
         if self.type == 'undershirt':
             return f"a {self.recommendation} base layer"
         elif self.type == 'pants':
@@ -49,6 +49,8 @@ class GearRecommendation():
             return f"a pair of {self.recommendation} gloves"
         elif self.type == 'boot_covers':
             return 'boot covers'
+        elif self.type == 'facemask':
+            return 'facemask'
         else:
             raise UnknownGearTypeException(f"Unknown gear type: '{self.type}'")
 
@@ -65,6 +67,8 @@ class DefaultRecommendation(Recommendation):
         if temperature is None:
             temperature = self.temperature
 
+        logger.debug(f"Getting recommendation for {gear} for {temperature}")
+
         self._vet_temp(temperature)
         floor = str(int(temperature // self.TEMP_INCREMENTS))
 
@@ -77,6 +81,7 @@ class DefaultRecommendation(Recommendation):
                 return GearRecommendation(gear,
                                           gear_recs[self.REC_KEY][self.REC_OVERRIDE])
             elif gear in gear_recs[self.REC_KEY]:
+                logger.debug(f"Got recommendation {gear_recs[self.REC_KEY][gear]} for {gear}")
                 return GearRecommendation(gear,
                                           gear_recs[self.REC_KEY][gear])
             else:
