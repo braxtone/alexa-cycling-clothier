@@ -89,10 +89,14 @@ class CyclingClothier:
         geolocator = Nominatim(user_agent=os.environ['FUNCTION_NAME'])
         self.logger.debug(f"Looking up lat long for {addr}")
 
+        # TODO Get better error handling here
+        # Something like a custom CantGetAddrLatLongException that is caught by
+        # the recommend_gear method and returns and error voice prompt
         try:
             location = geolocator.geocode(addr)
         except Exception as e:
             self.logger.error(f"Unable to retrieve coordinates for address: {e}")
+            raise Exception(e)
 
         return location
 
