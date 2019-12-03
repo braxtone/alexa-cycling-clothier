@@ -90,7 +90,7 @@
         "recommendations": {
             "boot_covers": null,
             "pants": "shorts",
-            "undershirt": "none",
+            "undershirt": null,
             "jersey": "shortsleeve",
             "gloves": "fingerless",
             "facemask": null

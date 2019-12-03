@@ -54,6 +54,15 @@ class MockDarkSky:
                                      Loader=yaml.FullLoader)
         return current_forecast
 
+    @staticmethod
+    def get_61_forecast():
+        import yaml
+        from darksky.forecast import CurrentlyForecast
+
+        forecast = yaml.load(open(FORECAST_61_VALID_OBJ),
+                                     Loader=yaml.FullLoader)
+        return forecast
+
 @pytest.fixture
 def mock_current_forecast(monkeypatch):
 
@@ -61,6 +70,14 @@ def mock_current_forecast(monkeypatch):
         return MockDarkSky().get_current_forecast()
 
     monkeypatch.setattr(CyclingClothier, "_get_current_forecast", mock_get_current_forecast)
+
+@pytest.fixture
+def mock_61_degree_forecast(monkeypatch):
+
+    def mock_get_61_forecast(*args, **kwargs):
+        return MockDarkSky().get_61_forecast()
+
+    monkeypatch.setattr(CyclingClothier, "_get_current_forecast", mock_get_61_forecast)
 
 @pytest.mark.usefixtures('set_ds_key', 'set_ds_key_key')
 def test_core_constructor_neg():
@@ -89,7 +106,17 @@ def test_default_gear_recommendation(get_valid_addr_obj,
                          "So you should wear: a dri-fit base layer, "
                          "biking tights, a longsleeve jersey, and a pair of full-finger gloves.")
     assert cc.recommend_gear() == expected_response
-    # TODO Add test for 28 degrees (says to ride the bus)
-    # TODO Add test for 61 degrees (not returning items you don't need to wear)
 
+@pytest.mark.usefixtures('set_ds_key', 'set_ds_key_key',
+                         'set_function_name')
+def test_default_gear_recommendation(get_valid_addr_obj,
+                                 mock_61_degree_forecast,
+                                 get_default_recs_obj):
+    cc = CyclingClothier(get_valid_addr_obj, get_default_recs_obj)
 
+    expected_response_61 = ("It's 61.0 degrees and Clear. "
+                            "So you should wear: biking shorts, a shortsleeve "
+                            "jersey, and a pair of fingerless gloves.")
+    assert cc.recommend_gear() == expected_response_61
+
+# TODO Add test for 28 degrees (says to ride the bus)

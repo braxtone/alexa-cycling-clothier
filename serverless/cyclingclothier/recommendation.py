@@ -67,8 +67,6 @@ class DefaultRecommendation(Recommendation):
         if temperature is None:
             temperature = self.temperature
 
-        logger.debug(f"Getting recommendation for {gear} for {temperature}")
-
         self._vet_temp(temperature)
         floor = str(int(temperature // self.TEMP_INCREMENTS))
 
@@ -81,7 +79,7 @@ class DefaultRecommendation(Recommendation):
                 return GearRecommendation(gear,
                                           gear_recs[self.REC_KEY][self.REC_OVERRIDE])
             elif gear in gear_recs[self.REC_KEY]:
-                logger.debug(f"Got recommendation {gear_recs[self.REC_KEY][gear]} for {gear}")
+                # logger.debug(f"Got recommendation {gear_recs[self.REC_KEY][gear]} for {gear}")
                 return GearRecommendation(gear,
                                           gear_recs[self.REC_KEY][gear])
             else:
