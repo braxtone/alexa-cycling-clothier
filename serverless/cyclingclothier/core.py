@@ -1,10 +1,12 @@
 import os
+import json
 from darksky.api import DarkSky
 from darksky.types import languages, units, weather
 from geopy.geocoders import Nominatim
 from geopy.location import Location
 from ask_sdk_model.services.device_address.address import Address
 from .recommendation import Recommendation, RecommendationOverrideException
+import boto3
 
 import logging
 logger = logging.getLogger(__name__)
@@ -58,8 +60,22 @@ class CyclingClothier:
 
         elif ds_key_key_locator == 'sm':
             self.logger.info("Getting DarkSky API key from Secrets Manager")
-            # TODO: Get key from Secrets Manager
-            return ds_key_key.split(':')[1]
+            secret = None
+            sm = boto3.client('secretsmanager')
+            resp = sm.get_secret_value(
+                    SecretId=ds_key_key_value)
+
+            if 'SecretString' in resp:
+                parsed = json.loads(resp['SecretString'])
+                secret = parsed['darksky_api_key']
+            else:
+                raise NameError(f"Unable to get secret from AWS Secrets Manager for: {ds_key_key_value}")
+
+            # # TODO: Get key from Secrets Manager
+            # raise NotImplementedError("Tell Braxton to get off his lazy bum and "
+            #                           "implement retrieving secrets from AWS SM")
+
+            return secret
         else:
             raise AttributeError(
                     f"Unknown DarkSky key prefix: {ds_key_key_locator}")
@@ -135,7 +151,7 @@ class CyclingClothier:
             rec_vals = [str(e) for e in recs.values()]
             # https://www.youtube.com/watch?v=P_i1xk07o4g
             recommendations = 'So you should wear: '
-            recommendations += ', '.join(rec_vals[:-1]) + ', and ' + rec_vals[-1]
+            recommendations += ', '.join(rec_vals[:-1]) + ', and ' + rec_vals[-1] + '.'
         except RecommendationOverrideException as e:
             self.logger.info("Encountered an override for temp: {current.temperature}")
             recommendations = str(e)

@@ -9,15 +9,20 @@ FORECAST_28_VALID_OBJ = './tests/forecast_28_valid.yaml'
 FORECAST_61_VALID_OBJ = './tests/forecast_61_valid.yaml'
 RECOMMENDATIONS_VALID = './tests/recommendation_valid.json'
 RECOMMENDATIONS_INVALID = './tests/recommendation_invalid.json'
+SECRETS_MANAGER_VALID = './tests/sm_response_valid.yaml'
 
 
 @pytest.fixture
-def set_ds_key_key(monkeypatch):
-    monkeypatch.setenv("DARKSKY_API_KEY_KEY", "env:DARKSKY_API_KEY")
+def set_env_ds_key_key(monkeypatch):
+    monkeypatch.setenv('DARKSKY_API_KEY_KEY', 'env:DARKSKY_API_KEY')
+
+@pytest.fixture
+def set_sm_ds_key_key(monkeypatch):
+    monkeypatch.setenv('DARKSKY_API_KEY_KEY', 'sm:dev/CyclingClothier/DarkSkyAPIKey')
 
 @pytest.fixture
 def set_ds_key(monkeypatch):
-    monkeypatch.setenv("DARKSKY_API_KEY", "alsdkfjwoeijwfojiwe")
+    monkeypatch.setenv('DARKSKY_API_KEY', 'alsdkfjwoeijwfojiwe')
 
 @pytest.fixture
 def set_function_name(monkeypatch):
@@ -72,13 +77,31 @@ class MockDarkSky:
                                      Loader=yaml.FullLoader)
         return forecast
 
+
+class MockSecretsManager:
+    @staticmethod
+    def get_secret_value():
+        import yaml
+        from botocore.client import SecretsManager
+
+        secret_value = yaml.load(open(SECRETS_MANAGER_VALID),
+                                 Loader=yaml.FullLoader)
+
+@pytest.fixture
+def mock_valid_secret(monkeypatch):
+    def mock_get_valid_secret(*args, **kwargs):
+        return MockSecretsManager().get_secret_value()
+
+    from botocore.client import SecretsManager  # noqa: F401
+    monkeypatch.setattr(SecretsManager, 'get_secret_value', mock_get_valid_secret)
+
 @pytest.fixture
 def mock_current_forecast(monkeypatch):
 
     def mock_get_current_forecast(*args, **kwargs):
         return MockDarkSky().get_current_forecast()
 
-    monkeypatch.setattr(CyclingClothier, "_get_current_forecast", mock_get_current_forecast)
+    monkeypatch.setattr(CyclingClothier, '_get_current_forecast', mock_get_current_forecast)
 
 @pytest.fixture
 def mock_61_degree_forecast(monkeypatch):
@@ -86,7 +109,7 @@ def mock_61_degree_forecast(monkeypatch):
     def mock_get_61_forecast(*args, **kwargs):
         return MockDarkSky().get_61_forecast()
 
-    monkeypatch.setattr(CyclingClothier, "_get_current_forecast", mock_get_61_forecast)
+    monkeypatch.setattr(CyclingClothier, '_get_current_forecast', mock_get_61_forecast)
 
 @pytest.fixture
 def mock_28_degree_forecast(monkeypatch):
@@ -94,9 +117,9 @@ def mock_28_degree_forecast(monkeypatch):
     def mock_get_28_forecast(*args, **kwargs):
         return MockDarkSky().get_28_forecast()
 
-    monkeypatch.setattr(CyclingClothier, "_get_current_forecast", mock_get_28_forecast)
+    monkeypatch.setattr(CyclingClothier, '_get_current_forecast', mock_get_28_forecast)
 
-@pytest.mark.usefixtures('set_ds_key', 'set_ds_key_key')
+@pytest.mark.usefixtures('set_ds_key', 'set_env_ds_key_key')
 def test_core_constructor_neg():
     not_addr = { "stuff": "things" }
 
@@ -104,7 +127,7 @@ def test_core_constructor_neg():
     with pytest.raises(TypeError):
         CyclingClothier(not_addr)
 
-@pytest.mark.usefixtures('set_ds_key', 'set_ds_key_key')
+@pytest.mark.usefixtures('set_ds_key', 'set_env_ds_key_key')
 def test_core_constructor(get_valid_addr_obj,
                           get_default_recs_obj):
     # Test valid Address object returns CyclingClothier object
@@ -112,7 +135,7 @@ def test_core_constructor(get_valid_addr_obj,
     cc = CyclingClothier(get_valid_addr_obj, get_default_recs_obj)
     assert isinstance(cc, CyclingClothier)
 
-@pytest.mark.usefixtures('set_ds_key', 'set_ds_key_key',
+@pytest.mark.usefixtures('set_ds_key', 'set_env_ds_key_key',
                          'set_function_name')
 def test_default_gear_recommendation(get_valid_addr_obj,
                                  mock_current_forecast,
@@ -124,7 +147,7 @@ def test_default_gear_recommendation(get_valid_addr_obj,
                          "biking tights, a longsleeve jersey, and a pair of full-finger gloves.")
     assert cc.recommend_gear() == expected_response
 
-@pytest.mark.usefixtures('set_ds_key', 'set_ds_key_key',
+@pytest.mark.usefixtures('set_ds_key', 'set_env_ds_key_key',
                          'set_function_name')
 def test_default_gear_recommendation(get_valid_addr_obj,
                                  mock_61_degree_forecast,
@@ -136,8 +159,21 @@ def test_default_gear_recommendation(get_valid_addr_obj,
                             "jersey, and a pair of fingerless gloves.")
     assert cc.recommend_gear() == expected_response
 
+@pytest.mark.usefixtures('set_ds_key', 'set_sm_ds_key_key',
+                         'set_function_name')
+def test_sm_gear_recommendation(get_valid_addr_obj,
+                                 mock_61_degree_forecast,
+                                 mock_valid_secret,
+                                 get_default_recs_obj):
+    cc = CyclingClothier(get_valid_addr_obj, get_default_recs_obj)
+
+    expected_response = ("It's 61.0 degrees and Clear. "
+                            "So you should wear: biking shorts, a shortsleeve "
+                            "jersey, and a pair of fingerless gloves.")
+    assert cc.recommend_gear() == expected_response
+
 # TODO Add test for 28 degrees (says to ride the bus)
-@pytest.mark.usefixtures('set_ds_key', 'set_ds_key_key',
+@pytest.mark.usefixtures('set_ds_key', 'set_env_ds_key_key',
                          'set_function_name')
 def test_default_gear_recommendation(get_valid_addr_obj,
                                  mock_28_degree_forecast,

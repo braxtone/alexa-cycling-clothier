@@ -1,0 +1,17 @@
+ARN: arn:aws:secretsmanager:us-west-2:189786628731:secret:dev/CyclingClothier/DarkSkyAPIKey-Erlyhi
+CreatedDate: 2019-10-23 22:16:56.325000-07:00
+Name: dev/CyclingClothier/DarkSkyAPIKey
+ResponseMetadata:
+  HTTPHeaders:
+    connection: keep-alive
+    content-length: '335'
+    content-type: application/x-amz-json-1.1
+    date: Sun, 29 Dec 2019 23:49:56 GMT
+    x-amzn-requestid: 853fea58-9a8c-4d30-8d5e-bcc781ad1cc8
+  HTTPStatusCode: 200
+  RequestId: 853fea58-9a8c-4d30-8d5e-bcc781ad1cc8
+  RetryAttempts: 0
+SecretString: '{"darksky_api_key":"super_sekrit"}'
+VersionId: 31500b31-e9fe-4085-aaab-658df59e8e40
+VersionStages:
+- AWSCURRENT
